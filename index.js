@@ -21,6 +21,8 @@ async function run() {
   try {
     await client.connect();
     const partsCollection = client.db("auto-parts").collection("parts");
+    const ordersCollection = client.db("auto-parts").collection("orders");
+    const usersCollection = client.db("auto-parts").collection("users");
 
     app.get("/parts", async (req, res) => {
       const result = await partsCollection.find().toArray();
