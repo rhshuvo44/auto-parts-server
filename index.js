@@ -34,9 +34,15 @@ async function run() {
       const result = await partsCollection.findOne(query);
       res.send(result);
     });
-    app.post("/order", async (req, res) => {
+    app.post("/orders", async (req, res) => {
       const order=req.body;
       const result = await ordersCollection.insertOne(order);
+      res.send(result);
+    });
+    app.get("/orders", async (req, res) => {
+      const email=req.query.email;
+      const query ={email:email}
+      const result = await ordersCollection.findOne(query);
       res.send(result);
     });
   } finally {
