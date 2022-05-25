@@ -40,10 +40,20 @@ async function run() {
       res.send(result);
     });
     app.get("/orders", async (req, res) => {
+      const result = await ordersCollection.find().toArray();
+      res.send(result);
+    });
+    app.get("/orders", async (req, res) => {
       const email=req.query.email;
       const query ={email:email}
       const result = await ordersCollection.findOne(query);
       res.send(result);
+    });
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const deleted = await ordersCollection.deleteOne(query);
+      res.send(deleted);
     });
   } finally {
   }
