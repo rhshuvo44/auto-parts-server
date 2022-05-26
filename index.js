@@ -34,6 +34,20 @@ async function run() {
       const result = await partsCollection.insertOne(part);
       res.send(result)
     });
+    
+    app.delete("/parts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const deleted = await partsCollection.deleteOne(query);
+      res.send(deleted);
+    });
+    app.get("/parts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await partsCollection.deleteOne(query);
+      res.send(result);
+    });
+    
     app.get("/purchase/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
