@@ -29,6 +29,11 @@ async function run() {
       const result = await partsCollection.find().toArray();
       res.send(result)
     });
+    app.post("/parts", async (req, res) => {
+      const part=req.body;
+      const result = await partsCollection.insertOne(part);
+      res.send(result)
+    });
     app.get("/purchase/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
