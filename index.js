@@ -96,6 +96,13 @@ async function run() {
       }
      
     });
+    //payment product api
+    app.get("/orders/:id", verifyToken,  async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.findOne(query);
+      res.send(result);
+    });
     app.delete("/orders/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
