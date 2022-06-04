@@ -53,14 +53,14 @@ async function run() {
     });
     app.post("/updateUser", async (req, res) => {
       const userInfo = req.body;
-      const result = await userProfileCollection.insertOne(part);
+      const result = await userProfileCollection.insertOne(userInfo);
       res.send(result);
     });
-    // app.get("/updateUser", async (req, res) => {
-    //   const part = req.body;
-    //   const result = await partsCollection.insertOne(part);
-    //   res.send(result);
-    // });
+    app.get("/updateUser/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await userProfileCollection.findOne({ email: email });
+      res.send(result);
+    });
     // parts delete
     app.delete("/parts/:id", async (req, res) => {
       const id = req.params.id;
