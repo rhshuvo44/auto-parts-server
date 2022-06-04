@@ -19,7 +19,7 @@ function verifyToken(req, res, next) {
     if (err) {
       return res.status(403).send({ message: "Forbideen access" });
     }
-    req.decoded = decoded; 
+    req.decoded = decoded;
   });
   next();
 }
@@ -38,6 +38,9 @@ async function run() {
     const ordersCollection = client.db("auto-parts").collection("orders");
     const reviewsCollection = client.db("auto-parts").collection("reviews");
     const userCollection = client.db("auto-parts").collection("users");
+    const userProfileCollection = client
+      .db("auto-parts")
+      .collection("updateUser");
 
     app.get("/parts", async (req, res) => {
       const result = await partsCollection.find().toArray();
@@ -48,14 +51,23 @@ async function run() {
       const result = await partsCollection.insertOne(part);
       res.send(result);
     });
-     // parts delete
+    app.post("/updateUser", async (req, res) => {
+      const userInfo = req.body;
+      const result = await userProfileCollection.insertOne(part);
+      res.send(result);
+    });
+    // app.get("/updateUser", async (req, res) => {
+    //   const part = req.body;
+    //   const result = await partsCollection.insertOne(part);
+    //   res.send(result);
+    // });
+    // parts delete
     app.delete("/parts/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const deleted = await partsCollection.deleteOne(query);
       res.send(deleted);
     });
-
 
     app.get("/purchase/:id", async (req, res) => {
       const id = req.params.id;
@@ -84,20 +96,19 @@ async function run() {
       const result = await ordersCollection.find().toArray();
       res.send(result);
     });
-    app.get("/orders",verifyToken, async (req, res) => {
+    app.get("/orders", verifyToken, async (req, res) => {
       const email = req.query.email;
       const decodedEmail = req.decoded.email;
       if (email === decodedEmail) {
         const query = { email: email };
         const result = await ordersCollection.find(query).toArray();
-       return res.send(result);
-      }else{
-        return res.status(403).send({message:"Forbidden access"})
+        return res.send(result);
+      } else {
+        return res.status(403).send({ message: "Forbidden access" });
       }
-     
     });
     //payment product api
-    app.get("/orders/:id", verifyToken,  async (req, res) => {
+    app.get("/orders/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.findOne(query);
@@ -109,8 +120,8 @@ async function run() {
       const deleted = await ordersCollection.deleteOne(query);
       res.send(deleted);
     });
-//user
-    app.get("/user",verifyToken, async (req, res) => {
+    //user
+    app.get("/user", verifyToken, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
@@ -130,28 +141,26 @@ async function run() {
       );
       res.send({ result, token });
     });
-    app.put("/user/admin/:email",verifyToken, async (req, res) => {
+    app.put("/user/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
-      const requester =req.decoded.email;
-      const requestAccount=await userCollection.findOne({email:requester})
-      if(requestAccount.role ==='admin'){
+      const requester = req.decoded.email;
+      const requestAccount = await userCollection.findOne({ email: requester });
+      if (requestAccount.role === "admin") {
         const filter = { email: email };
         const updateDoc = {
           $set: { role: "admin" },
         };
         const result = await userCollection.updateOne(filter, updateDoc);
         res.send(result);
-      }else{
-        res.status(403).send({message:'Forbidden'})
+      } else {
+        res.status(403).send({ message: "Forbidden" });
       }
-      
     });
     app.get("/admin/:email", async (req, res) => {
       const email = req.params.email;
-      const user =await userCollection.findOne({email:email})
-      const isAdmin=user.role ==='admin'
-        res.send({admin:isAdmin});
-      
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
     });
     app.delete("/user/:id", async (req, res) => {
       const id = req.params.id;
