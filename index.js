@@ -7,14 +7,14 @@ const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 const app = express();
 const port = process.env.PORT || 5000;
+const corsConfig = {
+  origin: ["https://auto-parts-4490a.web.app/"],
+  credentials: true,
+  methods: ["GET", "POST", "DELETE", "PUT"],
+};
 
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-    optionSuccessStatus: 200,
-  })
-);
+app.use(cors(corsConfig));
+app.options(("*", cors(corsConfig)));
 app.use(express.json());
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
