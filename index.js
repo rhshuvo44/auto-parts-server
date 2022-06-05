@@ -3,11 +3,18 @@ const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
-const { param } = require("express/lib/request");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
+
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+    optionSuccessStatus: 200,
+  })
+);
 app.use(express.json());
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -114,6 +121,24 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.findOne(query);
       res.send(result);
+    });
+
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = price * 100;
+
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
     });
 
     app.delete("/orders/:id", async (req, res) => {
