@@ -51,6 +51,7 @@ async function run() {
       const result = await partsCollection.insertOne(part);
       res.send(result);
     });
+    //user update
     app.post("/updateUser", async (req, res) => {
       const userInfo = req.body;
       const result = await userProfileCollection.insertOne(userInfo);
@@ -114,6 +115,7 @@ async function run() {
       const result = await ordersCollection.findOne(query);
       res.send(result);
     });
+
     app.delete("/orders/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
