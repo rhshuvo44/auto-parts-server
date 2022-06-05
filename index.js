@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 const corsConfig = {
   origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,HEADER",
   preflightContinue: false,
   optionsSuccessStatus: 204,
 };
@@ -45,6 +45,7 @@ async function run() {
     const ordersCollection = client.db("auto-parts").collection("orders");
     const reviewsCollection = client.db("auto-parts").collection("reviews");
     const userCollection = client.db("auto-parts").collection("users");
+    const paymentCollection = client.db("auto-parts").collection("payment");
     const userProfileCollection = client
       .db("auto-parts")
       .collection("updateUser");
@@ -121,6 +122,20 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.findOne(query);
       res.send(result);
+    });
+    app.patch("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const query = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          paid: true,
+          transctionId: payment.transctionId,
+        },
+      };
+      const result = await paymentCollection.insertOne(payment);
+      const orderUpdate = await ordersCollection.updateOne(query, updateDoc);
+      res.send(orderUpdate);
     });
 
     app.post("/create-payment-intent", async (req, res) => {
